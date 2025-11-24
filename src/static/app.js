@@ -552,6 +552,20 @@ document.addEventListener("DOMContentLoaded", () => {
             .join("")}
         </ul>
       </div>
+      <div class="social-share-buttons">
+        <button class="share-btn share-twitter" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" title="Share on X (Twitter)">
+          <span class="share-icon">𝕏</span>
+        </button>
+        <button class="share-btn share-facebook" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" title="Share on Facebook">
+          <span class="share-icon">f</span>
+        </button>
+        <button class="share-btn share-linkedin" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" title="Share on LinkedIn">
+          <span class="share-icon">in</span>
+        </button>
+        <button class="share-btn share-copy" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" title="Copy link">
+          <span class="share-icon">🔗</span>
+        </button>
+      </div>
       <div class="activity-card-actions">
         ${
           currentUser
@@ -586,6 +600,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handlers for share buttons
+    const shareButtons = activityCard.querySelectorAll(".share-btn");
+    shareButtons.forEach((button) => {
+      button.addEventListener("click", handleShare);
+    });
 
     activitiesList.appendChild(activityCard);
   }
@@ -797,6 +817,50 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     );
+  }
+
+  // Handle social sharing
+  function handleShare(event) {
+    const button = event.currentTarget;
+    const activityName = button.dataset.activity;
+    const description = button.dataset.description;
+    const schedule = button.dataset.schedule;
+
+    // Build share text and URL
+    const shareText = `Check out ${activityName} at Mergington High School! ${description} - ${schedule}`;
+    const shareUrl = window.location.href;
+
+    if (button.classList.contains("share-twitter")) {
+      // Share on Twitter/X
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        shareText
+      )}&url=${encodeURIComponent(shareUrl)}`;
+      window.open(twitterUrl, "_blank", "width=550,height=420");
+    } else if (button.classList.contains("share-facebook")) {
+      // Share on Facebook
+      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        shareUrl
+      )}&quote=${encodeURIComponent(shareText)}`;
+      window.open(facebookUrl, "_blank", "width=550,height=420");
+    } else if (button.classList.contains("share-linkedin")) {
+      // Share on LinkedIn
+      const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+        shareUrl
+      )}`;
+      window.open(linkedinUrl, "_blank", "width=550,height=420");
+    } else if (button.classList.contains("share-copy")) {
+      // Copy link to clipboard
+      const textToCopy = `${shareText}\n${shareUrl}`;
+      navigator.clipboard
+        .writeText(textToCopy)
+        .then(() => {
+          showMessage("Link copied to clipboard!", "success");
+        })
+        .catch((err) => {
+          console.error("Failed to copy:", err);
+          showMessage("Failed to copy link", "error");
+        });
+    }
   }
 
   // Show message function
