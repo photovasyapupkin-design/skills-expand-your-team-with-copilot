@@ -472,6 +472,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Helper function to escape HTML to prevent XSS
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
@@ -553,17 +560,47 @@ document.addEventListener("DOMContentLoaded", () => {
         </ul>
       </div>
       <div class="social-share-buttons">
-        <button class="share-btn share-twitter" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" title="Share on X (Twitter)">
-          <span class="share-icon">𝕏</span>
+        <button class="share-btn share-twitter" data-activity="${escapeHtml(
+          name
+        )}" data-description="${escapeHtml(
+      details.description
+    )}" data-schedule="${escapeHtml(
+      formattedSchedule
+    )}" title="Share on X (Twitter)" aria-label="Share ${escapeHtml(
+      name
+    )} on X (Twitter)">
+          <span class="share-icon" aria-hidden="true">𝕏</span>
         </button>
-        <button class="share-btn share-facebook" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" title="Share on Facebook">
-          <span class="share-icon">f</span>
+        <button class="share-btn share-facebook" data-activity="${escapeHtml(
+          name
+        )}" data-description="${escapeHtml(
+      details.description
+    )}" data-schedule="${escapeHtml(
+      formattedSchedule
+    )}" title="Share on Facebook" aria-label="Share ${escapeHtml(
+      name
+    )} on Facebook">
+          <span class="share-icon" aria-hidden="true">f</span>
         </button>
-        <button class="share-btn share-linkedin" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" title="Share on LinkedIn">
-          <span class="share-icon">in</span>
+        <button class="share-btn share-linkedin" data-activity="${escapeHtml(
+          name
+        )}" data-description="${escapeHtml(
+      details.description
+    )}" data-schedule="${escapeHtml(
+      formattedSchedule
+    )}" title="Share on LinkedIn" aria-label="Share ${escapeHtml(
+      name
+    )} on LinkedIn">
+          <span class="share-icon" aria-hidden="true">in</span>
         </button>
-        <button class="share-btn share-copy" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" title="Copy link">
-          <span class="share-icon">🔗</span>
+        <button class="share-btn share-copy" data-activity="${escapeHtml(
+          name
+        )}" data-description="${escapeHtml(
+      details.description
+    )}" data-schedule="${escapeHtml(
+      formattedSchedule
+    )}" title="Copy link" aria-label="Copy link for ${escapeHtml(name)}">
+          <span class="share-icon" aria-hidden="true">🔗</span>
         </button>
       </div>
       <div class="activity-card-actions">
@@ -851,15 +888,43 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (button.classList.contains("share-copy")) {
       // Copy link to clipboard
       const textToCopy = `${shareText}\n${shareUrl}`;
-      navigator.clipboard
-        .writeText(textToCopy)
-        .then(() => {
-          showMessage("Link copied to clipboard!", "success");
-        })
-        .catch((err) => {
-          console.error("Failed to copy:", err);
-          showMessage("Failed to copy link", "error");
-        });
+
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            showMessage("Link copied to clipboard!", "success");
+          })
+          .catch((err) => {
+            console.error("Failed to copy:", err);
+            // Fallback to older method
+            copyToClipboardFallback(textToCopy);
+          });
+      } else {
+        // Fallback for browsers/contexts without clipboard API
+        copyToClipboardFallback(textToCopy);
+      }
+    }
+  }
+
+  // Fallback method for copying to clipboard
+  function copyToClipboardFallback(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.select();
+
+    try {
+      document.execCommand("copy");
+      showMessage("Link copied to clipboard!", "success");
+    } catch (err) {
+      console.error("Fallback copy failed:", err);
+      showMessage("Failed to copy link. Please copy manually.", "error");
+    } finally {
+      document.body.removeChild(textArea);
     }
   }
 
