@@ -25,6 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
 
+  // Configuration constants
+  const SCHOOL_NAME = "Mergington High School";
+  const SHARE_POPUP_DIMENSIONS = "width=550,height=420";
+
   // Activity categories with corresponding colors
   const activityTypes = {
     sports: { label: "Sports", color: "#e8f5e9", textColor: "#2e7d32" },
@@ -864,7 +868,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const schedule = button.dataset.schedule;
 
     // Build share text and URL
-    const shareText = `Check out ${activityName} at Mergington High School! ${description} - ${schedule}`;
+    const shareText = `Check out ${activityName} at ${SCHOOL_NAME}! ${description} - ${schedule}`;
     const shareUrl = window.location.href;
 
     if (button.classList.contains("share-twitter")) {
@@ -872,19 +876,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
         shareText
       )}&url=${encodeURIComponent(shareUrl)}`;
-      window.open(twitterUrl, "_blank", "width=550,height=420");
+      window.open(twitterUrl, "_blank", SHARE_POPUP_DIMENSIONS);
     } else if (button.classList.contains("share-facebook")) {
       // Share on Facebook
       const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
         shareUrl
       )}&quote=${encodeURIComponent(shareText)}`;
-      window.open(facebookUrl, "_blank", "width=550,height=420");
+      window.open(facebookUrl, "_blank", SHARE_POPUP_DIMENSIONS);
     } else if (button.classList.contains("share-linkedin")) {
       // Share on LinkedIn
       const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
         shareUrl
       )}`;
-      window.open(linkedinUrl, "_blank", "width=550,height=420");
+      window.open(linkedinUrl, "_blank", SHARE_POPUP_DIMENSIONS);
     } else if (button.classList.contains("share-copy")) {
       // Copy link to clipboard
       const textToCopy = `${shareText}\n${shareUrl}`;
